@@ -60,7 +60,6 @@ const leadSchema = new mongoose.Schema({
     enum: ['New', 'Follow-up', 'Approved', 'Rejected'],
     default: 'New',
   },
-  // --- New Rejection Fields ---
   rejectionReason: {
       type: String,
       enum: ['', 'CIBIL Issue', 'Low Income', 'Documentation Missing', 'Not Interested', 'Poor Lead', 'Other'],
@@ -70,7 +69,6 @@ const leadSchema = new mongoose.Schema({
       type: String,
       trim: true
   },
-  // --- End Rejection Fields ---
   source: {
     type: String,
     enum: ['Manual', 'Link'],
@@ -79,6 +77,10 @@ const leadSchema = new mongoose.Schema({
   createdBy: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
+    required: true,
+  },
+  createdByName: {
+    type: String,
     required: true,
   },
   editHistory: [editHistorySchema],

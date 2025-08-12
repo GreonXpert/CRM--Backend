@@ -59,7 +59,13 @@ exports.createLead = async (req, res, next) => {
     }
     // --- End Duplicate Check ---
 
+    const user = await User.findById(req.user.id);
+    if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
     req.body.createdBy = req.user.id;
+    req.body.createdByName = user.name;
     req.body.source = 'Manual';
 
     const lead = await Lead.create(req.body);
@@ -119,6 +125,7 @@ exports.createLeadFromLink = async (req, res, next) => {
         // --- End Duplicate Check ---
 
         req.body.createdBy = userId;
+        req.body.createdByName = userExists.name;
         req.body.source = 'Link';
 
         const lead = await Lead.create(req.body);
@@ -132,6 +139,7 @@ exports.createLeadFromLink = async (req, res, next) => {
         res.status(400).json({ success: false, message: error.message });
     }
 };
+
 
 // @desc    Get all leads
 // @route   GET /api/leads
