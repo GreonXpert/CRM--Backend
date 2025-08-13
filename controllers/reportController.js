@@ -65,6 +65,55 @@ exports.getDashboardStats = async (req, res, next) => {
     }
 };
 
+// @desc    Get user performance statistics for analytics
+// @route   GET /api/reports/user-performance
+// @access  Private (SUPER ADMIN)
+exports.getUserPerformanceStats = async (req, res, next) => {
+  try {
+    // Fetch all users and leads in parallel for efficiency
+    const [users, leads] = await Promise.all([
+      User.find({ role: { $in: ['ADMIN', 'SUPER ADMIN'] } }).select('name').lean(),
+      Lead.find().select('createdBy status').lean()
+    ]);
+
+    // Create a map for quick lead lookup
+    const leadsByCreator = leads.reduce((acc, lead) => {
+      const creatorId = lead.createdBy.toString();
+      if (!acc[creatorId]) {
+        acc[creatorId] = [];
+      }
+      acc[creatorId].push(lead);
+      return acc;
+    }, {});
+
+    const performanceData = users.map(user => {
+      const userLeads = leadsByCreator[user._id.toString()] || [];
+      
+      const approved = userLeads.filter(l => l.status === 'Approved').length;
+      const rejected = userLeads.filter(l => l.status === 'Rejected').length;
+      const pending = userLeads.filter(l => ['New', 'Follow-up'].includes(l.status)).length;
+
+      return {
+        name: user.name,
+        leads: userLeads.length,
+        approved,
+        rejected,
+        pending,
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      data: performanceData
+    });
+
+  } catch (error) {
+    console.error('Error fetching user performance stats:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+
 /**
  * @desc    Generate and download a custom date-range report in CSV or PDF format
  * @route   POST /api/reports/download

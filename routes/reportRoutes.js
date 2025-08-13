@@ -1,6 +1,6 @@
 // /server/routes/reportRoutes.js
 const express = require('express');
-const { getDashboardStats, generateAndSendMonthlyReport, downloadCustomReport } = require('../controllers/reportController');
+const { getDashboardStats, generateAndSendMonthlyReport, downloadCustomReport,getUserPerformanceStats} = require('../controllers/reportController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
 const router = express.Router();
@@ -9,6 +9,10 @@ const router = express.Router();
 router.use(protect, authorize('SUPER ADMIN', 'ADMIN'));
 
 router.get('/dashboard', getDashboardStats);
+
+// User performance analytics route (NEW)
+router.route('/user-performance')
+  .get(protect, authorize('SUPER ADMIN'), getUserPerformanceStats);
 
 // The download route is also accessible by both roles
 router.post('/download', protect, authorize('SUPER ADMIN', 'ADMIN'), downloadCustomReport);

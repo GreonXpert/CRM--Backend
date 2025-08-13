@@ -108,9 +108,9 @@ exports.createLeadFromLink = async (req, res, next) => {
         }
         
         // Note: Standard Aadhar is 12 digits.
-        const aadharRegex = /^[0-9]{16}$/;
+        const aadharRegex = /^[0-9]{12}$/;
         if (!aadharRegex.test(aadharNumber)) {
-            return res.status(400).json({ success: false, message: 'Invalid Aadhar card format. It should be 16 digits.' });
+            return res.status(400).json({ success: false, message: 'Invalid Aadhar card format. It should be 12 digits.' });
         }
         // --- End Format Validation ---
 
